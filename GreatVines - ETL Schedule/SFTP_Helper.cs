@@ -5,8 +5,8 @@ using System.IO;
 using Renci.SshNet;
 
 
-public class sftp {
-    string host = "sftp.greatvines.com";
+public class SFTP_Helper {
+    string host = "SFTP_Helper.greatvines.com";
     int port = 22;// El puerto por defecto para SFTP es 22
     string username = "claseazul@greatvines.com";
     string password = "85NGAOtVxDMqkQMWJKsVPXKKe";
