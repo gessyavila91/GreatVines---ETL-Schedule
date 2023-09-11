@@ -14,23 +14,29 @@ namespace SftpExample
             string password = "85NGAOtVxDMqkQMWJKsVPXKKe";
             string remoteDirectory = "/";
             
+            string localFilePath = @"C:\archivo_a_subir.zip";
+
+            
             using (var sftp = new SftpClient(host, port, username, password))
             {
                 sftp.Connect();
                 
-                // Listar archivos del directorio
-                var files = sftp.ListDirectory(remoteDirectory);
-                foreach (var file in files)
-                {
-                    Console.WriteLine(file.Name);
-                }
-                
+                listFiles(sftp, remoteDirectory);
                 downloadFile(sftp, remoteDirectory);
+                UploadFile(sftp, localFilePath, remoteDirectory);
 
                 sftp.Disconnect();
             }
 
             Console.WriteLine("¡Terminado!");
+        }
+        private static void listFiles(SftpClient sftp, string remoteDirectory) {
+
+            // Listar archivos del directorio
+            var files = sftp.ListDirectory(remoteDirectory);
+            foreach (var file in files) {
+                Console.WriteLine(file.Name);
+            }
         }
         private static void downloadFile(SftpClient sftp, string remoteDirectory) {
 
@@ -42,25 +48,21 @@ namespace SftpExample
             }
         }
         
-        private static void UploadFile(string host, int port, string username, string password, string localFilePath, string remoteDirectory)
+        private static void UploadFile(SftpClient sftp, string localFilePath, string remoteDirectory)
         {
-            using (var sftp = new SftpClient(host, port, username, password))
+            sftp.Connect();
+
+            // Si el directorio remoto no existe, lo crea.
+            if (!sftp.Exists(remoteDirectory))
             {
-                sftp.Connect();
-
-                // Si el directorio remoto no existe, lo crea.
-                if (!sftp.Exists(remoteDirectory))
-                {
-                    sftp.CreateDirectory(remoteDirectory);
-                }
-
-                using (var fileStream = new FileStream(localFilePath, FileMode.Open))
-                {
-                    sftp.UploadFile(fileStream, remoteDirectory + Path.GetFileName(localFilePath));
-                }
-
-                sftp.Disconnect();
+                sftp.CreateDirectory(remoteDirectory);
             }
+
+            using (var fileStream = new FileStream(localFilePath, FileMode.Open))
+            {
+                sftp.UploadFile(fileStream, remoteDirectory + Path.GetFileName(localFilePath));
+            }
+            
         }
     }
 }
