@@ -52,20 +52,21 @@ public static class GreatVibes {
             }
         }
     }
-    public static void SaveFilesToZip() { // Declara un método estático llamado SaveFilesToZip, que acepta un argumento opcional que especifica la ruta del archivo zip a crear.
+    public static void SaveFilesToZip() {
         string zipPath = GetZipName();
-        
-        try { // Inicia un bloque try para manejar cualquier excepción que pueda ocurrir en el código que está dentro de este bloque.
-            if (csvFilesList != null) { // Comprueba si csvFilesList no es null, para evitar una excepción NullReferenceException en el bucle foreach a continuación.
-                using (ZipArchive zip = ZipFile.Open(zipPath, ZipArchiveMode.Update)) { // Abre el archivo zip especificado por zipPath para actualizarlo. Crea uno si aún no existe.
-                    foreach (string file in csvFilesList) { // Itera sobre cada string en csvFilesList, que se supone que son rutas de archivos csv.
-                        if (File.Exists(file)) { // Comprueba si el archivo csv actual existe en el sistema de archivos.
-                            zip.CreateEntryFromFile(file, Path.GetFileName(file)); // Si existe, añade este archivo al archivo zip, usando el nombre del archivo csv como nombre de la entrada en el archivo zip.
-                        }
-                    }
+
+        if (csvFilesList == null) return;
+
+        try {
+            using (ZipArchive zip = ZipFile.Open(zipPath, ZipArchiveMode.Update)) {
+                foreach (string file in csvFilesList) {
+                    if (!File.Exists(file)) continue;
+
+                    zip.CreateEntryFromFile(file, Path.GetFileName(file));
                 }
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             Console.WriteLine(e.Message);
             throw;
         }
