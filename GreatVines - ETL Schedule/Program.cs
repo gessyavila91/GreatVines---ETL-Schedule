@@ -13,7 +13,9 @@ class Program {
         string userId = "Desarrollos";
         string password = "D3v5ll0@7r@22$";
 
+        GreatVibes.PrintFiles();
         GreatVibes.CreateFiles();
+        GreatVibes.SaveFilesToZip();
     }
 
 }
