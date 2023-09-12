@@ -7,12 +7,12 @@ using GreatVibesSchedule.helper;
 
 class Program {
     static void Main(string[] args) {
+        SFTP_Helper SFTPHelp = new SFTP_Helper();
+        SFTPHelp.sftpTEST();
+        GreatVibesFlow();
+    }
 
-        string host = "192.168.1.21";
-        string database = "SBO_Tequilaspremium_Prod";
-        string userId = "Desarrollos";
-        string password = "D3v5ll0@7r@22$";
-
+    private static void GreatVibesFlow() {
         GreatVibes.PrintFiles();
         GreatVibes.CreateFiles();
         GreatVibes.SaveFilesToZip();

@@ -9,7 +9,15 @@ public static class GreatVibes {
     
     private static readonly string dateFormat = "yyyyMMdd_HHmmss";
     private static readonly string StoreProcedurePrefix = "SAP_GreatVines_";
-    private static List<string> storedProceduresList = new() { "SAP_GreatVines_Products", "SAP_GreatVines_Distributors"};
+    private static List<string> storedProceduresList = new()
+    { "SAP_GreatVines_Contact"
+     ,"SAP_GreatVines_Distributors"
+     ,"SAP_GreatVines_Inventory"
+     ,"SAP_GreatVines_Orders"
+     ,"SAP_GreatVines_Products"
+     ,"SAP_GreatVines_Sales_Orders"
+     ,"SAP_GreatVines_Sales_Orders_Items"
+    };
     private static List<string> csvFilesList;
     private static DateTime now = DateTime.Now;
     
@@ -20,7 +28,6 @@ public static class GreatVibes {
     }
 
     public static void CreateFiles() {
-        
         List<string> createdFiles = new List<string>();
         csvFilesList = null;
 
@@ -40,9 +47,9 @@ public static class GreatVibes {
     }
 
     public static void PrintFiles() {
-        if (csvFilesList != null) {
+        if (getcsvWIPFiles() != null) {
             try {
-                foreach (string file in csvFilesList) {
+                foreach (string file in getcsvWIPFiles()) {
                     Console.WriteLine(file);
                 }
             }
@@ -51,6 +58,10 @@ public static class GreatVibes {
                 throw;
             }
         }
+    }
+
+    private static List<string> getcsvWIPFiles() {
+        return csvFilesList;
     }
     public static void SaveFilesToZip() {
         string zipPath = GetZipName();
@@ -72,16 +83,16 @@ public static class GreatVibes {
         }
     }
     
-    public static string GetCSVFileName(DateTime now, string file = null) {
+    private static string GetCSVFileName(DateTime now, string file = null) {
         return file == null ? $"{clientName}_{now.ToString(dateFormat)}.csv" :
             $"{clientName}_{file}_{now.ToString(dateFormat)}.csv";
     }
     
-    public static string GetZipName() {
+    private static string GetZipName() {
         return$"{clientName}_{now.ToString(dateFormat)}.zip";
     }
     
-    public static void CreateFiles(string csv, string fileName, string filePath = ".") {
+    private static void CreateFiles(string csv, string fileName, string filePath = ".") {
         try {
             string fullPath = Path.Combine(filePath, fileName);
             File.WriteAllText(fullPath, csv);
