@@ -4,7 +4,6 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
-
 public static class SqlServer_Helper {
     private static string BuildConnectionString() {
         SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder {
@@ -16,9 +15,8 @@ public static class SqlServer_Helper {
         return builder.ToString();
     }
 
-    public static DataTable ExecuteStoredProcedure(string storedProcedureName,
-        SqlParameter[] parameters = null) {
-        string connectionString  = BuildConnectionString();
+    public static DataTable ExecuteStoredProcedure(string storedProcedureName, SqlParameter[] parameters = null) {
+        string connectionString = BuildConnectionString();
         DataTable result = new DataTable();
 
         using (SqlConnection connection = new SqlConnection(connectionString)) {
@@ -38,19 +36,18 @@ public static class SqlServer_Helper {
         return result;
     }
 
-    public static void ExecuteQuery(string connectionString, string query) {
-        using (SqlConnection connection = new SqlConnection(connectionString)) {
-            connection.Open();
+    public static DataTable ExecuteQuery(string query) {
+        using SqlConnection connection = new SqlConnection(BuildConnectionString());
+        using SqlCommand command = new SqlCommand(query, connection);
 
-            using (SqlCommand command = new SqlCommand(query, connection)) {
-                // Supongamos que es un query de SELECT y queremos leer los resultados
-                using (SqlDataReader reader = command.ExecuteReader()) {
-                    while (reader.Read()) {
-                        
-                    }
-                }
-            }
-        }
+        connection.Open();
+
+        using SqlDataReader reader = command.ExecuteReader();
+
+        var result = new DataTable();
+        result.Load(reader);
+
+        return result;
     }
 
 }
