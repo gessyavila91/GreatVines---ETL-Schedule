@@ -6,37 +6,24 @@ using System.IO;
 using Renci.SshNet;
 
 
-public class SFTP_Helper {
-    string host = @"files.andavisolutions.com";
-    int port = 22;
-    string username = @"greatvinesclientdataprod.claseazul";
-    string password = @"/TXX1+R1639zjpGeN3/htM3IJDz/Dlk6";
-    string remoteDirectory = "/";
+public static class SFTP_Helper {
+    private static string host = @"files.andavisolutions.com";
+    private static int port = 22;
+    private static string username = @"greatvinesclientdataprod.claseazul";
+    private static string password = @"/TXX1+R1639zjpGeN3/htM3IJDz/Dlk6";
 
-    string localFilePath = @"./";
-    
-    
-
-    public void sftpTEST() {
-        ConnectionInfo connInfo = new ConnectionInfo(host, port, username, new PasswordAuthenticationMethod(username, password));
-
+    public static void sftpTEST() {
         try {
-            // Get the SFTP client instance
-            using (var sftp = new SftpClient(connInfo)) {
-                // Connect to the server
+            using (var sftp = new SftpClient(ConnectionInfo())) {
                 sftp.Connect();
-
-                // Check if we're connected
                 if (sftp.IsConnected) {
                     Console.WriteLine("Connected to the server.");
-                    sftp.ListDirectory(remoteDirectory);
-                    Console.WriteLine(sftp.ListDirectory(remoteDirectory));
-                }
-                else {
+                    foreach (var file in sftp.ListDirectory("/")) {
+                        Console.WriteLine((file.IsDirectory ? "Directory: " : "File:     ") + file.FullName);
+                    }
+                } else {
                     Console.WriteLine("Could not connect to the server.");
                 }
-
-                // Disconnect
                 sftp.Disconnect();
             }
 
@@ -45,36 +32,53 @@ public class SFTP_Helper {
                 MethodBase.GetCurrentMethod().Name);
         }
     }
-    private void listFiles(SftpClient sftp, string remoteDirectory) {
-
-        // Listar archivos del directorio
-        var files = sftp.ListDirectory(remoteDirectory);
-        foreach (var file in files) {
-            Console.WriteLine(file.Name);
+    public static void listFiles(SftpClient sftp, string remoteDirectory) {
+        try {
+            var files = sftp.ListDirectory(remoteDirectory);
+            foreach (var file in files) {
+                Console.WriteLine(file.Name);
+            }
+        } catch (Exception ex) {
+            ErrorHandler_Helper.HandleException(ex, MethodBase.GetCurrentMethod().DeclaringType.Name,
+                MethodBase.GetCurrentMethod().Name);
         }
     }
-    private void downloadFile(SftpClient sftp, string remoteDirectory) {
-
-        // Descargar un archivo
-        string remoteFileName = "nombre_del_archivo.txt";
-        string localPath = @"C:\ruta\local\del\archivo.txt";
-        using (var fileStream = new FileStream(localPath, FileMode.Create)) {
-            sftp.DownloadFile(remoteDirectory + remoteFileName, fileStream);
+    public static void downloadFile(SftpClient sftp, string remoteDirectory) {
+        try {
+            string remoteFileName = "nombre_del_archivo.txt";
+            string localPath = @"C:\ruta\local\del\archivo.txt";
+            using (var fileStream = new FileStream(localPath, FileMode.Create)) {
+                sftp.DownloadFile(remoteDirectory + remoteFileName, fileStream);
+            }
+            Console.WriteLine("¡Descarga Terminada!");
+        } catch (Exception ex) {
+            ErrorHandler_Helper.HandleException(ex, MethodBase.GetCurrentMethod().DeclaringType.Name,
+                MethodBase.GetCurrentMethod().Name);
         }
-        Console.WriteLine("¡Descarga Terminada!");
     }
 
-    private void UploadFile(SftpClient sftp, string localFilePath, string remoteDirectory) {
-        sftp.Connect();
+    public static void UploadFile(string localFilePath, string remoteDirectory) {
+        try {
+            using (var sftp = new SftpClient(ConnectionInfo())) {
+                sftp.Connect();
+                if (!sftp.Exists(remoteDirectory)) {
+                    sftp.CreateDirectory(remoteDirectory);
+                }
 
-        // Si el directorio remoto no existe, lo crea.
-        if (!sftp.Exists(remoteDirectory)) {
-            sftp.CreateDirectory(remoteDirectory);
-        }
-
-        using (var fileStream = new FileStream(localFilePath, FileMode.Open)) {
-            sftp.UploadFile(fileStream, remoteDirectory + Path.GetFileName(localFilePath));
+                using (var fileStream = new FileStream(localFilePath, FileMode.Open)) {
+                    sftp.UploadFile(fileStream, remoteDirectory + Path.GetFileName(localFilePath));
+                }
+                sftp.Disconnect();
+            }
+        } catch (Exception ex) {
+            ErrorHandler_Helper.HandleException(ex, MethodBase.GetCurrentMethod().DeclaringType.Name,
+                MethodBase.GetCurrentMethod().Name);
         }
 
     }
+
+    private static ConnectionInfo ConnectionInfo() {
+        return new ConnectionInfo(host, port, username, new PasswordAuthenticationMethod(username, password));
+    }
+    
 }
