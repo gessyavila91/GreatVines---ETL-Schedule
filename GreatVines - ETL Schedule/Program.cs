@@ -7,8 +7,6 @@ using GreatVibesSchedule.helper;
 
 class Program {
     static void Main(string[] args) {
-        SFTP_Helper SFTPHelp = new SFTP_Helper();
-        SFTPHelp.sftpTEST();
         GreatVibesFlow();
     }
 
@@ -16,6 +14,7 @@ class Program {
         GreatVibes.PrintFiles();
         GreatVibes.CreateFiles();
         GreatVibes.SaveFilesToZip();
+        GreatVibes.SendFiles();
     }
 
 }

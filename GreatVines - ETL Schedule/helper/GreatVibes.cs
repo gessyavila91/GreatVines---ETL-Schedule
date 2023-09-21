@@ -1,4 +1,5 @@
-﻿namespace GreatVibesSchedule.helper;
+﻿using System.Reflection;
+namespace GreatVibesSchedule.helper;
 
 using System.Text;
 using System.Data;
@@ -22,10 +23,6 @@ public static class GreatVibes {
     private static DateTime now = DateTime.Now;
     
     private static string clientName = "ClaseAzul";
-    
-    static GreatVibes() {
-
-    }
 
     public static void CreateFiles() {
         List<string> createdFiles = new List<string>();
@@ -137,9 +134,38 @@ public static class GreatVibes {
         }
     }
     
-    private static void SendFiles() {
-        // Este método enviará los archivos generados
-        // Deberías completar esta función de acuerdo a tus necesidades
+    public static void SendFiles() {
+        // Check if the file exists
+        if (File.Exists(GetZipName())) {
+            Console.WriteLine("File exists.");
+            SFTP_Helper.UploadFile(GetZipName(),"/claseazul@greatvines.com/FTP/");
+
+            RemoveFiles();
+
+        } else {
+            Console.WriteLine("File does not exist.");
+        }
     }
 
+    private static void RemoveFiles() {
+        try {
+            string localDirectory = "./";
+
+            string[] zipFiles = Directory.GetFiles(localDirectory, "*.zip");
+            string[] csvFiles = Directory.GetFiles(localDirectory, "*.csv");
+
+            var files = zipFiles.Concat(csvFiles);
+
+            foreach (var file in files) {
+                if (File.Exists(file)) {
+                    File.Delete(file);
+                    Console.WriteLine("Deleted: " + file);
+                }
+            }
+        } catch (Exception ex) {
+            ErrorHandler_Helper.HandleException(ex, MethodBase.GetCurrentMethod().DeclaringType.Name,
+                MethodBase.GetCurrentMethod().Name);
+        }
+    }
+    
 }
